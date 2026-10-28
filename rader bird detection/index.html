@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEL Problem 1606 - Micro-Doppler Radar Defense Surveillance System</title>
+  <meta name="description" content="Micro-Doppler Based Target Classification for Drone vs Bird Discrimination - Bharat Electronics Limited (BEL) Problem ID 1606. Real-time FMCW radar DSP and AI classification.">
+  
+  <!-- Modern Tactical Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="tactical-theme">
+  <!-- Top Navigation & System Status Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="bel-insignia">
+        <div class="insignia-icon">
+          <svg viewBox="0 0 40 40" width="36" height="36" fill="none">
+            <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" stroke="#00e5ff" stroke-width="2" fill="rgba(0,229,255,0.08)" />
+            <circle cx="20" cy="20" r="10" stroke="#00ff9d" stroke-width="1.5" />
+            <path d="M20,6 L20,34 M6,20 L34,20" stroke="#00e5ff" stroke-width="1" stroke-dasharray="2,2" />
+            <circle cx="20" cy="20" r="3" fill="#00ff9d" />
+          </svg>
+        </div>
+        <div class="insignia-text">
+          <span class="org-title">BHARAT ELECTRONICS LIMITED</span>
+          <span class="project-title">MICRO-DOPPLER TARGET DISCRIMINATION SYSTEM</span>
+        </div>
+      </div>
+      <div class="problem-tag">
+        <span class="tag-label">DEFENSE R&amp;D</span>
+        <span class="tag-val">PROBLEM ID 1606</span>
+      </div>
+    </div>
+
+    <!-- Status Indicators & Live UTC Clock -->
+    <div class="header-right">
+      <div class="telemetry-pill">
+        <span class="pill-dot active-green"></span>
+        <span class="pill-title">FMCW DSP ENGINE:</span>
+        <span class="pill-value">ONLINE (X-BAND 10.0 GHz)</span>
+      </div>
+      <div class="telemetry-pill">
+        <span class="pill-dot active-green"></span>
+        <span class="pill-title">AI CLASSIFIER:</span>
+        <span class="pill-value">ENSEMBLE ACTIVE (98.6% ACC)</span>
+      </div>
+      <div class="telemetry-pill time-pill">
+        <span class="pill-title">ZULU TIME:</span>
+        <span class="pill-value" id="zuluClock">2026-10-26 10:30:00 UTC</span>
+      </div>
+      <button id="guideModalBtn" class="btn-guide-toggle" title="Open Presentation Script &amp; Teacher Q&amp;A Guide">
+        <span class="btn-icon">🎙️</span>
+        <span class="btn-text">PRESENTER SCRIPT &amp; Q&amp;A</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Target Presets Strip (6 Targets: 3 Drones, 3 Birds) -->
+  <section class="target-presets-strip" aria-label="Target Presets">
+    <div class="strip-header">
+      <span class="strip-label">TACTICAL TARGET PRESETS:</span>
+      <span class="strip-subtitle">Select target to stream live micro-Doppler radar telemetry</span>
+    </div>
+    <div class="presets-grid" id="presetButtonsContainer">
+      <!-- 3 Drones -->
+      <button class="preset-card active" data-target="quadcopter" id="preset-quadcopter">
+        <div class="preset-badge drone-badge">DRONE</div>
+        <div class="preset-icon">🛸</div>
+        <div class="preset-info">
+          <div class="preset-name">Quadcopter (DJI Phantom)</div>
+          <div class="preset-meta">4 Rotors • 5,100 RPM • 170 Hz Cadence</div>
+        </div>
+      </button>
+
+      <button class="preset-card" data-target="hexacopter" id="preset-hexacopter">
+        <div class="preset-badge drone-badge">DRONE</div>
+        <div class="preset-icon">🚁</div>
+        <div class="preset-info">
+          <div class="preset-name">Hexacopter (Heavy Lift)</div>
+          <div class="preset-meta">6 Rotors • 4,200 RPM • 210 Hz Cadence</div>
+        </div>
+      </button>
+
+      <button class="preset-card" data-target="microuav" id="preset-microuav">
+        <div class="preset-badge drone-badge">DRONE</div>
+        <div class="preset-icon">🪰</div>
+        <div class="preset-info">
+          <div class="preset-name">Micro-UAV (Black Hornet)</div>
+          <div class="preset-meta">2 Rotors • 8,400 RPM • 280 Hz Cadence</div>
+        </div>
+      </button>
+
+      <!-- 3 Birds -->
+      <button class="preset-card" data-target="pigeon" id="preset-pigeon">
+        <div class="preset-badge bird-badge">BIRD</div>
+        <div class="preset-icon">🕊️</div>
+        <div class="preset-info">
+          <div class="preset-name">Pigeon / Dove</div>
+          <div class="preset-meta">Columba livia • 5.8 Hz Wing Flap</div>
+        </div>
+      </button>
+
+      <button class="preset-card" data-target="eagle" id="preset-eagle">
+        <div class="preset-badge bird-badge">BIRD</div>
+        <div class="preset-icon">🦅</div>
+        <div class="preset-info">
+          <div class="preset-name">Golden Eagle / Raptor</div>
+          <div class="preset-meta">Aquila chrysaetos • 3.2 Hz Gliding Flap</div>
+        </div>
+      </button>
+
+      <button class="preset-card" data-target="seagull" id="preset-seagull">
+        <div class="preset-badge bird-badge">BIRD</div>
+        <div class="preset-icon">🐦</div>
+        <div class="preset-info">
+          <div class="preset-name">Seagull (Coastal)</div>
+          <div class="preset-meta">Larus argentatus • 4.1 Hz Flap Rhythm</div>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <nav class="main-tabs" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-surveillance" id="nav-surveillance">
+      <span class="tab-num">01</span>
+      <span class="tab-title">📡 Real-Time Micro-Doppler Surveillance</span>
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-rcs-fails" id="nav-rcs-fails">
+      <span class="tab-num">02</span>
+      <span class="tab-title">🎯 Target Classification &amp; Threat Intel (Why RCS Fails)</span>
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-ingestion" id="nav-ingestion">
+      <span class="tab-num">03</span>
+      <span class="tab-title">📁 Data Ingestion &amp; Benchmarking</span>
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-report" id="nav-report">
+      <span class="tab-num">04</span>
+      <span class="tab-title">📄 Defense Intelligence Report</span>
+    </button>
+  </nav>
+
+  <!-- MAIN TAB CONTENT AREA -->
+  <main class="content-wrapper">
+    
+    <!-- ========================================== -->
+    <!-- TAB 1: REAL-TIME SURVEILLANCE & SIGNATURES -->
+    <!-- ========================================== -->
+    <div class="tab-pane active" id="tab-surveillance" role="tabpanel">
+      <div class="surveillance-grid">
+        
+        <!-- Left & Center: Radar Signal Processing Deck -->
+        <div class="dsp-column">
+          
+          <!-- Box 1: Micro-Doppler Spectrogram Canvas -->
+          <div class="panel-box spectrogram-box">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <span class="panel-tag">DSP JTFA</span>
+                <h2 class="panel-title">STFT Micro-Doppler Time-Frequency Spectrogram</h2>
+              </div>
+              <div class="panel-controls">
+                <div class="spec-legend">
+                  <span class="legend-label">Echo Power:</span>
+                  <div class="legend-bar"></div>
+                  <span class="legend-scale">-60 dB</span>
+                  <span class="legend-scale">0 dB</span>
+                </div>
+                <button class="tool-btn" id="toggleSpecAnimBtn" title="Pause / Play Spectrogram Stream">⏸️ Pause</button>
+                <select id="specColormapSelect" class="tactical-select" title="Colormap Scheme">
+                  <option value="turbo">Colormap: Turbo (BEL Standard)</option>
+                  <option value="viridis">Colormap: Viridis</option>
+                  <option value="plasma">Colormap: Plasma / Night</option>
+                  <option value="green">Colormap: Phosphor Tactical</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Spectrogram Canvas Container with Grid Labels -->
+            <div class="spectrogram-canvas-container">
+              <div class="y-axis-labels">
+                <span>+1500 Hz</span>
+                <span>+1000 Hz</span>
+                <span>+500 Hz</span>
+                <span class="center-freq">0 Hz (Trans)</span>
+                <span>-500 Hz</span>
+                <span>-1000 Hz</span>
+                <span>-1500 Hz</span>
+              </div>
+              <div class="canvas-viewport">
+                <canvas id="spectrogramCanvas" width="900" height="340"></canvas>
+                <!-- Dynamic Callout Annotation on the canvas -->
+                <div class="annotation-overlay" id="spectrogramAnnotation">
+                  <span class="ann-badge" id="annBadge">BLADE FLASHES DETECTED</span>
+                  <span class="ann-desc" id="annDesc">Symmetric micro-Doppler sweeps extending to ±1,500 Hz produced by carbon-fiber rotor tips.</span>
+                </div>
+              </div>
+            </div>
+            <div class="x-axis-labels">
+              <span>Time: 0.0s</span>
+              <span>0.5s</span>
+              <span>1.0s</span>
+              <span>1.5s</span>
+              <span>2.0s</span>
+              <span>2.5s</span>
+              <span>3.0s (Window)</span>
+            </div>
+          </div>
+
+          <!-- Box 2: Cadence-Velocity Diagram (CVD) -->
+          <div class="panel-box cvd-box">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <span class="panel-tag">CADENCE SPECTRUM</span>
+                <h3 class="panel-title">Cadence-Velocity Diagram (CVD) — Fourier Transform of Spectrogram</h3>
+              </div>
+              <div class="cadence-highlight" id="cadenceCalloutBox">
+                <span class="cadence-label">DETECTED CADENCE PEAK:</span>
+                <span class="cadence-val" id="cadenceVal">170.0 Hz</span>
+                <span class="cadence-interp" id="cadenceInterp">(Drone Motor / Blade Chop: 2 blades × 5,100 RPM / 60)</span>
+              </div>
+            </div>
+
+            <div class="cvd-canvas-container">
+              <div class="y-axis-labels">
+                <span>1.0</span>
+                <span>0.75</span>
+                <span>0.50</span>
+                <span>0.25</span>
+                <span>0.0</span>
+              </div>
+              <div class="canvas-viewport">
+                <canvas id="cvdCanvas" width="900" height="150"></canvas>
+              </div>
+            </div>
+            <div class="x-axis-labels">
+              <span>0 Hz (DC)</span>
+              <span>20 Hz</span>
+              <span>50 Hz</span>
+              <span>100 Hz</span>
+              <span>150 Hz</span>
+              <span>170 Hz [Peak]</span>
+              <span>200 Hz</span>
+              <span>250 Hz</span>
+              <span>300 Hz</span>
+            </div>
+          </div>
+
+          <!-- Box 3: Doppler Acoustic Sonification & Live Oscilloscope -->
+          <div class="panel-box audio-box">
+            <div class="audio-control-bar">
+              <div class="audio-play-group">
+                <button id="audioPlayBtn" class="audio-play-btn" aria-label="Play Doppler Radar Acoustic Audio">
+                  <span class="play-icon" id="playIcon">▶</span>
+                  <span class="play-text" id="playText">PLAY RADAR DOPPLER AUDIO</span>
+                </button>
+                <div class="audio-vol-group">
+                  <span class="vol-icon">🔊</span>
+                  <input type="range" id="audioVolume" min="0" max="1" step="0.05" value="0.75" class="tactical-slider" title="Acoustic Volume">
+                </div>
+              </div>
+
+              <div class="audio-status-group">
+                <span class="audio-mode-tag" id="audioModeTag">ACOUSTIC SYNTHESIS: DRONE HIGH-SPEED MOTOR &amp; CHOP</span>
+                <span class="audio-freq-tag" id="audioFreqTag">CARRIER: 850 Hz • CHOP: 170 Hz</span>
+              </div>
+            </div>
+
+            <!-- Live Green Oscilloscope Canvas -->
+            <div class="oscilloscope-container">
+              <canvas id="oscilloscopeCanvas" width="900" height="65"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Tactical Radar PPI Scope & AI Classification Deck -->
+        <div class="tactical-column">
+          
+          <!-- Round Radar PPI Scope -->
+          <div class="panel-box ppi-box">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <span class="panel-tag">TACTICAL PPI SCOPE</span>
+                <h3 class="panel-title">Plan Position Indicator</h3>
+              </div>
+              <div class="ppi-range-tag">MAX: 2,500m</div>
+            </div>
+
+            <div class="ppi-canvas-wrapper">
+              <canvas id="ppiCanvas" width="340" height="340"></canvas>
+              <div class="ppi-telemetry-overlay">
+                <div class="ppi-stat"><span class="k">RANGE:</span> <span class="v" id="ppiRange">1,420 m</span></div>
+                <div class="ppi-stat"><span class="k">BEARING:</span> <span class="v" id="ppiBearing">045° (NE)</span></div>
+                <div class="ppi-stat"><span class="k">ALTITUDE:</span> <span class="v" id="ppiAlt">120 m</span></div>
+                <div class="ppi-stat"><span class="k">SPEED:</span> <span class="v" id="ppiSpeed">12.0 m/s</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Model Classification Card -->
+          <div class="panel-box classification-box">
+            <div class="panel-header">
+              <span class="panel-tag">AI INFERENCE ENGINE</span>
+              <span class="model-id">RF-ENSEMBLE-X10</span>
+            </div>
+
+            <div class="class-result-card" id="classResultCard">
+              <div class="threat-banner critical" id="threatBanner">
+                <span class="threat-dot"></span>
+                <span class="threat-text" id="threatText">THREAT LEVEL: CRITICAL</span>
+              </div>
+
+              <div class="target-title-block">
+                <span class="predicted-label">CLASSIFIED TARGET:</span>
+                <div class="target-name-row">
+                  <h2 class="target-name-text" id="targetNameText">DRONE [Quadcopter]</h2>
+                  <span class="confidence-badge" id="confidenceBadge">100.0%</span>
+                </div>
+                <p class="target-sub-text" id="targetSubText">High-speed rotary blade micro-Doppler signatures detected. Kinematic and cadence profiles match commercial UAV.</p>
+              </div>
+
+              <!-- Probability Distribution Bars -->
+              <div class="prob-distribution">
+                <div class="prob-row">
+                  <div class="prob-label-row">
+                    <span class="label">DRONE PROBABILITY</span>
+                    <span class="val" id="droneProbVal">99.8%</span>
+                  </div>
+                  <div class="prob-track">
+                    <div class="prob-bar drone-fill" id="droneProbBar" style="width: 99.8%;"></div>
+                  </div>
+                </div>
+
+                <div class="prob-row">
+                  <div class="prob-label-row">
+                    <span class="label">BIRD (BIOLOGICAL)</span>
+                    <span class="val" id="birdProbVal">0.2%</span>
+                  </div>
+                  <div class="prob-track">
+                    <div class="prob-bar bird-fill" id="birdProbBar" style="width: 0.2%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Telemetry Metrics Grid -->
+              <div class="telemetry-metrics-grid">
+                <div class="metric-cell">
+                  <span class="m-label">RCS (Echo Size)</span>
+                  <span class="m-val" id="mRcs">0.021 m²</span>
+                  <span class="m-sub">Conventional Radar</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Cadence Peak</span>
+                  <span class="m-val" id="mCadence">170.0 Hz</span>
+                  <span class="m-sub">Rotor Chopping Rate</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Doppler Spread</span>
+                  <span class="m-val" id="mSpread">±1,480 Hz</span>
+                  <span class="m-sub">Blade Tip Velocity</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Symmetry Index</span>
+                  <span class="m-val" id="mSymmetry">0.96 (High)</span>
+                  <span class="m-sub">Balanced Rotor Pair</span>
+                </div>
+              </div>
+
+              <!-- Automated Defense Action -->
+              <div class="action-recommendation" id="actionRecommendation">
+                <div class="action-header">
+                  <span class="action-icon">🛡️</span>
+                  <span class="action-title" id="actionTitle">AUTOMATED COUNTERMEASURE AUTHORIZED</span>
+                </div>
+                <p class="action-body" id="actionBody">Engage RF Jammer on 2.4 / 5.8 GHz ISM control bands. Initiate GNSS spoofing denial protocol. Alert Air Defense Sector 4.</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TAB 2: TARGET CLASSIFICATION & THREAT INTEL (WHY RCS FAILS) -->
+    <!-- ======================================================= -->
+    <div class="tab-pane" id="tab-rcs-fails" role="tabpanel">
+      
+      <!-- Scientific Thesis Banner -->
+      <div class="thesis-banner">
+        <div class="thesis-header">
+          <span class="panel-tag">BEL PROBLEM ID 1606 CORE SCIENTIFIC THESIS</span>
+          <h2 class="thesis-title">Why Conventional Radar Cross Section (RCS) Fails to Discriminate Drones from Birds</h2>
+        </div>
+        <p class="thesis-desc">
+          Conventional military air defense radars rely on echo amplitude to calculate <strong>Radar Cross Section (RCS, in $m^2$)</strong>. 
+          Both a standard quadcopter drone and a biological pigeon exhibit an identical RCS of approximately <strong>$0.02\text{ m}^2$</strong>, and both fly at comparable forward velocities ($10 - 15\text{ m/s}$). 
+          As a result, legacy radar displays identical blips for both, causing massive false alarm rates or dangerous drone incursions. 
+          <strong>Micro-Doppler Radar DSP solves this ambiguity</strong> by analyzing the internal kinematics of rotor blades versus biological flapping wings.
+        </p>
+      </div>
+
+      <!-- Side-by-Side Comparison: Conventional vs Micro-Doppler -->
+      <div class="comparison-grid">
+        
+        <!-- Left: Conventional Radar -->
+        <div class="comp-card legacy-card">
+          <div class="comp-badge legacy-badge">CONVENTIONAL RADAR (RCS ONLY)</div>
+          <h3 class="comp-title">Echo Size &amp; Bulk Velocity Measurement</h3>
+          
+          <div class="comp-visual">
+            <div class="radar-dot-sim">
+              <div class="blip-sample">
+                <div class="blip-circle gray-blip"></div>
+                <span class="blip-txt">Drone: RCS = 0.020 m²</span>
+              </div>
+              <div class="vs-divider">IDENTICAL ECHO RETURN</div>
+              <div class="blip-sample">
+                <div class="blip-circle gray-blip"></div>
+                <span class="blip-txt">Pigeon: RCS = 0.021 m²</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="comp-metrics-list">
+            <div class="metric-row">
+              <span class="mr-key">Discriminator Used:</span>
+              <span class="mr-val fail">RCS &amp; Flight Velocity Only</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-key">Drone vs Bird Separation:</span>
+              <span class="mr-val fail">Impossible (~50% Ambiguity)</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-key">False Alarm Rate:</span>
+              <span class="mr-val fail">&gt; 45% (Operator Fatigue)</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-key">Defense Vulnerability:</span>
+              <span class="mr-val fail">High — Kamikaze Drones Pass Unchecked</span>
+            </div>
+          </div>
+          
+          <div class="comp-footer">
+            <p>Legacy radars cannot discern the microscopic mechanical motion occurring within the radar resolution cell.</p>
+          </div>
+        </div>
+
+        <!-- Right: Micro-Doppler Solution -->
+        <div class="comp-card solution-card">
+          <div class="comp-badge solution-badge">BEL 1606 SOLUTION (MICRO-DOPPLER)</div>
+          <h3 class="comp-title">Kinematic Micro-Motion Signature Analysis</h3>
+          
+          <div class="comp-visual">
+            <div class="signature-dual-view">
+              <div class="sig-preview drone-sig">
+                <span class="sig-title">Quadcopter Signature</span>
+                <span class="sig-stat">Cadence: 170.0 Hz • Spread: ±1500 Hz</span>
+                <div class="sig-art drone-art"></div>
+              </div>
+              <div class="sig-preview bird-sig">
+                <span class="sig-title">Pigeon Signature</span>
+                <span class="sig-stat">Cadence: 5.8 Hz • Spread: ±180 Hz</span>
+                <div class="sig-art bird-art"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="comp-metrics-list">
+            <div class="metric-row">
+              <span class="mr-key">Discriminator Used:</span>
+              <span class="mr-val pass">7 Physical Micro-Doppler Features</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-key">Drone vs Bird Separation:</span>
+              <span class="mr-val pass">98.6% Discrimination Accuracy</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-key">False Alarm Rate:</span>
+              <span class="mr-val pass">&lt; 1.4% in Dense Clutter</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-key">Defense Automation:</span>
+              <span class="mr-val pass">Real-Time Threat Classification &amp; Jamming</span>
+            </div>
+          </div>
+
+          <div class="comp-footer">
+            <p>By extracting rotor blade chopping frequency and Doppler tip spread, classification is deterministic and robust.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- The 5 Golden Differences Cards -->
+      <div class="differences-section">
+        <div class="section-title-wrap">
+          <span class="panel-tag">PHYSICAL PRINCIPLES</span>
+          <h3 class="section-title">The 5 Golden Physical Discriminators: Drone vs Bird</h3>
+        </div>
+
+        <div class="diff-cards-grid">
+          
+          <!-- Diff 1 -->
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-num">01</span>
+              <h4 class="diff-heading">Cadence Frequency (Rhythm)</h4>
+            </div>
+            <div class="diff-comparison">
+              <div class="diff-side drone">
+                <span class="entity">DRONE</span>
+                <span class="value">100 - 280 Hz</span>
+                <p>Electric motors spin at 5,000 - 8,000+ RPM. A 2-blade rotor chops air at 170 Hz.</p>
+              </div>
+              <div class="diff-side bird">
+                <span class="entity">BIRD</span>
+                <span class="value">2 - 8 Hz</span>
+                <p>Biological muscles physically cannot flap faster than 8 times per second.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diff 2 -->
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-num">02</span>
+              <h4 class="diff-heading">Doppler Tip Velocity Spread ($\Delta f_D$)</h4>
+            </div>
+            <div class="diff-comparison">
+              <div class="diff-side drone">
+                <span class="entity">DRONE</span>
+                <span class="value">±1,000 to ±2,500 Hz</span>
+                <p>Rotor tips spin at extreme speeds ($v_{tip} \approx 60\text{ m/s}$), producing massive Doppler spreads.</p>
+              </div>
+              <div class="diff-side bird">
+                <span class="entity">BIRD</span>
+                <span class="value">±150 to ±350 Hz</span>
+                <p>Wing tips move at modest biological speeds ($3 - 5\text{ m/s}$), keeping Doppler narrow.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diff 3 -->
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-num">03</span>
+              <h4 class="diff-heading">Spectral Sideband Symmetry</h4>
+            </div>
+            <div class="diff-comparison">
+              <div class="diff-side drone">
+                <span class="entity">DRONE</span>
+                <span class="value">Symmetry &gt; 0.92</span>
+                <p>As one blade advances toward the radar (+), the opposite blade recedes (-) at identical speed.</p>
+              </div>
+              <div class="diff-side bird">
+                <span class="entity">BIRD</span>
+                <span class="value">Symmetry &lt; 0.45</span>
+                <p>Birds push down powerfully on downstrokes and retract wings on upstrokes, creating strong asymmetry.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diff 4 -->
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-num">04</span>
+              <h4 class="diff-heading">Torso-to-Appendage Energy Ratio</h4>
+            </div>
+            <div class="diff-comparison">
+              <div class="diff-side drone">
+                <span class="entity">DRONE</span>
+                <span class="value">Rotor Dominant (&lt; 0.35)</span>
+                <p>Conductive carbon fiber &amp; plastic propellers reflect significant continuous RF energy.</p>
+              </div>
+              <div class="diff-side bird">
+                <span class="entity">BIRD</span>
+                <span class="value">Torso Dominant (&gt; 0.80)</span>
+                <p>Over 85% of bird echo reflects from the dense chest; light feathers produce low micro-Doppler power.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diff 5 -->
+          <div class="diff-card">
+            <div class="diff-header">
+              <span class="diff-num">05</span>
+              <h4 class="diff-heading">Mathematical Formulation</h4>
+            </div>
+            <div class="diff-math-body">
+              <div class="math-row">
+                <span class="m-term">Doppler Shift:</span>
+                <span class="m-eq">$f_D = \frac{2 \cdot v_r}{\lambda} = \frac{2 \cdot v_r \cdot f_0}{c}$</span>
+              </div>
+              <div class="math-row">
+                <span class="m-term">Rotor Tip Velocity:</span>
+                <span class="m-eq">$v_{tip} = 2\pi \cdot r \cdot \frac{\text{RPM}}{60}$</span>
+              </div>
+              <div class="math-row">
+                <span class="m-term">Blade Chopping Frequency:</span>
+                <span class="m-eq">$f_c = N_{blades} \cdot \frac{\text{RPM}}{60}$</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tactical Countermeasures Box -->
+      <div class="countermeasures-banner">
+        <div class="panel-header">
+          <span class="panel-tag">MILITARY AUTOMATION</span>
+          <h3 class="panel-title">Automated Tactical Countermeasure Matrix</h3>
+        </div>
+        <div class="cm-table-responsive">
+          <table class="cm-table">
+            <thead>
+              <tr>
+                <th>Classification</th>
+                <th>Confidence Threshold</th>
+                <th>Automated Action</th>
+                <th>RF Spectrum Protocol</th>
+                <th>Operator Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="threat-pill critical">DRONE [CRITICAL]</span></td>
+                <td>&ge; 90.0%</td>
+                <td>Initiate C-UAS Directed Jammer</td>
+                <td>Target 2.4 GHz &amp; 5.8 GHz ISM / GNSS L1</td>
+                <td>Immediate authorization to neutralize</td>
+              </tr>
+              <tr>
+                <td><span class="threat-pill warning">DRONE [SUSPECT]</span></td>
+                <td>70.0% - 89.9%</td>
+                <td>Target Track Lock &amp; Optical Slew</td>
+                <td>Standby RF Jammer</td>
+                <td>Operator visual verification via PTZ Camera</td>
+              </tr>
+              <tr>
+                <td><span class="threat-pill safe">BIRD [BIOLOGICAL]</span></td>
+                <td>&ge; 85.0%</td>
+                <td>Alarm Suppression &amp; Passive Track</td>
+                <td>Silent (No Jammer Transmission)</td>
+                <td>Zero operator action required (Fatigue reduced)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: DATA INGESTION & BENCHMARKING (DSP & ML ENGINE) -->
+    <!-- ======================================================== -->
+    <div class="tab-pane" id="tab-ingestion" role="tabpanel">
+      
+      <div class="ingestion-layout">
+        
+        <!-- Left: Upload Box & Feature Extraction -->
+        <div class="ingest-col-left">
+          
+          <!-- Drag-and-Drop Ingestion Card -->
+          <div class="panel-box upload-box">
+            <div class="panel-header">
+              <span class="panel-tag">RADAR I/Q DATA INGESTION</span>
+              <h3 class="panel-title">Import External Radar File (.csv / .wav / .png)</h3>
+            </div>
+            
+            <div class="drop-zone" id="radarDropZone">
+              <div class="drop-icon">📥</div>
+              <h4 class="drop-title">Drag &amp; Drop Radar Doppler Audio or I/Q CSV here</h4>
+              <p class="drop-hint">Supports .wav (radar audio), .csv (raw I/Q time-series), or .png (spectrogram image)</p>
+              <div class="drop-btn-wrap">
+                <label for="radarFileInput" class="btn-file-select">BROWSE FILES</label>
+                <input type="file" id="radarFileInput" accept=".wav,.csv,.png,.jpg,.jpeg" style="display:none;">
+              </div>
+            </div>
+
+            <!-- Ingestion Progress / File Info -->
+            <div class="file-status-bar" id="fileStatusBar" style="display:none;">
+              <div class="file-stat-left">
+                <span class="file-icon">📄</span>
+                <span class="file-name" id="loadedFileName">quadcopter_sample.csv</span>
+                <span class="file-size" id="loadedFileSize">(142 KB)</span>
+              </div>
+              <div class="file-stat-right">
+                <span class="badge-processed">DSP INGESTED &amp; PROCESSED</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Extraction Pipeline Table -->
+          <div class="panel-box feature-box">
+            <div class="panel-header">
+              <span class="panel-tag">FEATURE EXTRACTION PIPELINE</span>
+              <h3 class="panel-title">7 Physical Micro-Doppler Feature Vector</h3>
+            </div>
+            
+            <div class="features-table-wrap">
+              <table class="features-table" id="featuresTable">
+                <thead>
+                  <tr>
+                    <th>Feature Symbol</th>
+                    <th>Physical Parameter</th>
+                    <th>Extracted Value</th>
+                    <th>Diagnostic Range</th>
+                    <th>Classification Influence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>f_c</code></td>
+                    <td>Cadence Peak Frequency</td>
+                    <td id="f_cadence" class="feat-val">170.0 Hz</td>
+                    <td>&gt; 50 Hz = Drone | &lt; 15 Hz = Bird</td>
+                    <td><span class="influence-bar high">PRIMARY (42%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>B_mD</code></td>
+                    <td>Micro-Doppler Bandwidth</td>
+                    <td id="f_bw" class="feat-val">2,960 Hz</td>
+                    <td>&gt; 1,500 Hz = Drone | &lt; 500 Hz = Bird</td>
+                    <td><span class="influence-bar high">VERY HIGH (26%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>f_max</code></td>
+                    <td>Upper Doppler Extent</td>
+                    <td id="f_fmax" class="feat-val">+1,480 Hz</td>
+                    <td>Positive Blade Tip Velocity</td>
+                    <td><span class="influence-bar med">MEDIUM (10%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>f_min</code></td>
+                    <td>Lower Doppler Extent</td>
+                    <td id="f_fmin" class="feat-val">-1,480 Hz</td>
+                    <td>Negative Blade Tip Velocity</td>
+                    <td><span class="influence-bar med">MEDIUM (9%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>S_LR</code></td>
+                    <td>Sideband Symmetry Index</td>
+                    <td id="f_symm" class="feat-val">0.96</td>
+                    <td>&gt; 0.85 = Drone | &lt; 0.60 = Bird</td>
+                    <td><span class="influence-bar med">MEDIUM (8%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>R_torso</code></td>
+                    <td>Torso-to-Appendage Ratio</td>
+                    <td id="f_torso" class="feat-val">0.28</td>
+                    <td>&lt; 0.40 = Drone | &gt; 0.70 = Bird</td>
+                    <td><span class="influence-bar low">MODERATE (3%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>K_spec</code></td>
+                    <td>Spectral Crest / Kurtosis</td>
+                    <td id="f_kurt" class="feat-val">6.84</td>
+                    <td>Spikiness of Blade Flashes</td>
+                    <td><span class="influence-bar low">MODERATE (2%)</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Pre-Loaded Benchmark Library & Confusion Matrix -->
+        <div class="ingest-col-right">
+          
+          <!-- Benchmark Datasets Library -->
+          <div class="panel-box benchmark-box">
+            <div class="panel-header">
+              <span class="panel-tag">OFFICIAL BENCHMARK SAMPLES</span>
+              <h3 class="panel-title">BEL Radar Ground-Truth Test Library</h3>
+            </div>
+            
+            <div class="benchmark-list" id="benchmarkList">
+              <!-- Item 1 -->
+              <div class="benchmark-card" data-sample="quadcopter_phantom4">
+                <div class="bench-info">
+                  <span class="bench-tag drone">DRONE</span>
+                  <span class="bench-title">quadcopter_phantom4_xband.iq.csv</span>
+                  <span class="bench-meta">X-Band 10 GHz • SNR 18 dB • Range 1.4 km</span>
+                </div>
+                <div class="bench-actions">
+                  <button class="btn-test-sample" data-sample="quadcopter_phantom4">Ingest &amp; Test</button>
+                  <button class="btn-dl-sample" data-sample="quadcopter_phantom4" title="Download Raw CSV">📥</button>
+                </div>
+              </div>
+
+              <!-- Item 2 -->
+              <div class="benchmark-card" data-sample="hexacopter_carbon">
+                <div class="bench-info">
+                  <span class="bench-tag drone">DRONE</span>
+                  <span class="bench-title">hexacopter_heavy_carbon.iq.csv</span>
+                  <span class="bench-meta">6-Rotor Heavy UAV • 210 Hz Cadence • 1.2 km</span>
+                </div>
+                <div class="bench-actions">
+                  <button class="btn-test-sample" data-sample="hexacopter_carbon">Ingest &amp; Test</button>
+                  <button class="btn-dl-sample" data-sample="hexacopter_carbon" title="Download Raw CSV">📥</button>
+                </div>
+              </div>
+
+              <!-- Item 3 -->
+              <div class="benchmark-card" data-sample="microuav_recon">
+                <div class="bench-info">
+                  <span class="bench-tag drone">DRONE</span>
+                  <span class="bench-title">microuav_nano_recon.iq.csv</span>
+                  <span class="bench-meta">Nano Drone • 280 Hz Cadence • Hovering</span>
+                </div>
+                <div class="bench-actions">
+                  <button class="btn-test-sample" data-sample="microuav_recon">Ingest &amp; Test</button>
+                  <button class="btn-dl-sample" data-sample="microuav_recon" title="Download Raw CSV">📥</button>
+                </div>
+              </div>
+
+              <!-- Item 4 -->
+              <div class="benchmark-card" data-sample="columba_pigeon">
+                <div class="bench-info">
+                  <span class="bench-tag bird">BIRD</span>
+                  <span class="bench-title">columba_livia_pigeon_test.iq.csv</span>
+                  <span class="bench-meta">Biological Bird • 5.8 Hz Wingbeat • 1.2 km</span>
+                </div>
+                <div class="bench-actions">
+                  <button class="btn-test-sample" data-sample="columba_pigeon">Ingest &amp; Test</button>
+                  <button class="btn-dl-sample" data-sample="columba_pigeon" title="Download Raw CSV">📥</button>
+                </div>
+              </div>
+
+              <!-- Item 5 -->
+              <div class="benchmark-card" data-sample="golden_eagle">
+                <div class="bench-info">
+                  <span class="bench-tag bird">BIRD</span>
+                  <span class="bench-title">golden_eagle_gliding_dive.iq.csv</span>
+                  <span class="bench-meta">Raptor Gliding &amp; Flapping • 3.2 Hz Cadence</span>
+                </div>
+                <div class="bench-actions">
+                  <button class="btn-test-sample" data-sample="golden_eagle">Ingest &amp; Test</button>
+                  <button class="btn-dl-sample" data-sample="golden_eagle" title="Download Raw CSV">📥</button>
+                </div>
+              </div>
+
+              <!-- Item 6 -->
+              <div class="benchmark-card" data-sample="seagull_clutter">
+                <div class="bench-info">
+                  <span class="bench-tag bird">BIRD</span>
+                  <span class="bench-title">seagull_coastal_clutter.iq.csv</span>
+                  <span class="bench-meta">Coastal Clutter • 4.1 Hz Flap Rhythm</span>
+                </div>
+                <div class="bench-actions">
+                  <button class="btn-test-sample" data-sample="seagull_clutter">Ingest &amp; Test</button>
+                  <button class="btn-dl-sample" data-sample="seagull_clutter" title="Download Raw CSV">📥</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Model Validation & Confusion Matrix -->
+          <div class="panel-box matrix-box">
+            <div class="panel-header">
+              <span class="panel-tag">EMPIRICAL VALIDATION</span>
+              <h3 class="panel-title">Model Confusion Matrix (N = 1,200 Radar Profiles)</h3>
+            </div>
+            
+            <div class="matrix-content">
+              <div class="matrix-table-wrap">
+                <table class="confusion-matrix-table">
+                  <thead>
+                    <tr>
+                      <th colspan="2" rowspan="2"></th>
+                      <th colspan="2" class="cm-predicted-header">AI Predicted Class</th>
+                    </tr>
+                    <tr>
+                      <th>Predicted DRONE</th>
+                      <th>Predicted BIRD</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th rowspan="2" class="cm-actual-header">Actual Ground Truth</th>
+                      <th class="actual-row-label">Actual DRONE</th>
+                      <td class="cm-cell true-positive">
+                        <span class="cm-val">592</span>
+                        <span class="cm-pct">98.67% (TP)</span>
+                      </td>
+                      <td class="cm-cell false-negative">
+                        <span class="cm-val">8</span>
+                        <span class="cm-pct">1.33% (FN)</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="actual-row-label">Actual BIRD</th>
+                      <td class="cm-cell false-positive">
+                        <span class="cm-val">9</span>
+                        <span class="cm-pct">1.50% (FP)</span>
+                      </td>
+                      <td class="cm-cell true-negative">
+                        <span class="cm-val">591</span>
+                        <span class="cm-pct">98.50% (TN)</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Summary Metrics Cards -->
+              <div class="matrix-stats-grid">
+                <div class="mstat-card">
+                  <span class="mstat-k">Overall Accuracy:</span>
+                  <span class="mstat-v pass">98.58%</span>
+                </div>
+                <div class="mstat-card">
+                  <span class="mstat-k">AUC-ROC Score:</span>
+                  <span class="mstat-v pass">0.997</span>
+                </div>
+                <div class="mstat-card">
+                  <span class="mstat-k">Drone Precision:</span>
+                  <span class="mstat-v pass">98.50%</span>
+                </div>
+                <div class="mstat-card">
+                  <span class="mstat-k">F1-Score:</span>
+                  <span class="mstat-v pass">0.986</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 4: DEFENSE INTELLIGENCE REPORT (OFFICIAL PRINTABLE) -->
+    <!-- ========================================================== -->
+    <div class="tab-pane" id="tab-report" role="tabpanel">
+      
+      <div class="report-toolbar-bar no-print">
+        <div class="rt-left">
+          <span class="rt-tag">OFFICIAL DEFENSE DOSSIER</span>
+          <span class="rt-desc">Formatted in compliance with BEL Military Air Surveillance Protocol</span>
+        </div>
+        <div class="rt-right">
+          <button class="btn-print-report" id="printReportBtn">
+            <span class="print-icon">🖨️</span>
+            <span class="print-text">PRINT / EXPORT PDF REPORT</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Document Container -->
+      <article class="printable-report" id="printableReport">
+        
+        <!-- Document Official Header -->
+        <header class="doc-header">
+          <div class="doc-emblem-block">
+            <div class="doc-emblem">
+              <svg viewBox="0 0 60 60" width="56" height="56" fill="none">
+                <circle cx="30" cy="30" r="28" stroke="#102a43" stroke-width="2" />
+                <polygon points="30,6 52,18 52,42 30,54 8,42 8,18" stroke="#003e6b" stroke-width="2" fill="none" />
+                <circle cx="30" cy="30" r="14" stroke="#0052cc" stroke-width="1.5" />
+                <path d="M30,10 L30,50 M10,30 L50,30" stroke="#0052cc" stroke-width="1" stroke-dasharray="2,2" />
+                <circle cx="30" cy="30" r="4" fill="#0052cc" />
+              </svg>
+            </div>
+            <div class="doc-org-text">
+              <h1 class="doc-gov">BHARAT ELECTRONICS LIMITED (BEL)</h1>
+              <h2 class="doc-sub">RADAR SYSTEMS DEVELOPMENT &amp; AVIONICS DIVISION</h2>
+              <h3 class="doc-title">AIR SURVEILLANCE &amp; TARGET DISCRIMINATION INTELLIGENCE REPORT</h3>
+            </div>
+          </div>
+          <div class="doc-meta-block">
+            <div class="doc-security-seal">RESTRICTED // TACTICAL AIR DEFENSE</div>
+            <div class="doc-id-row"><span class="k">REPORT REF:</span> <span class="v">BEL-1606-RAD-2026-X49</span></div>
+            <div class="doc-id-row"><span class="k">TIMESTAMP:</span> <span class="v" id="repTimestamp">2026-10-26 10:30:15 UTC</span></div>
+            <div class="doc-id-row"><span class="k">DEFENSE SECTOR:</span> <span class="v">SECTOR-04 (NORTHERN BORDER)</span></div>
+          </div>
+        </header>
+
+        <hr class="doc-rule">
+
+        <!-- Section 1: Radar Platform & Sensor Telemetry -->
+        <section class="doc-section">
+          <h3 class="doc-section-title">1. RADAR PLATFORM &amp; OPERATIONAL SENSOR CONFIGURATION</h3>
+          <div class="doc-grid-3">
+            <div class="doc-field">
+              <span class="doc-k">Sensor Unit:</span>
+              <span class="doc-v">BEL-TADRS-X10 Tactical FMCW</span>
+            </div>
+            <div class="doc-field">
+              <span class="doc-k">Operating Band:</span>
+              <span class="doc-v">X-Band (10.00 GHz, &lambda; = 3.0 cm)</span>
+            </div>
+            <div class="doc-field">
+              <span class="doc-k">Chirp Bandwidth:</span>
+              <span class="doc-v">100.0 MHz (Range Res: 1.5 m)</span>
+            </div>
+            <div class="doc-field">
+              <span class="doc-k">Pulse Repetition Freq (PRF):</span>
+              <span class="doc-v">10.0 kHz (Nyquist Doppler: &plusmn;2,500 Hz)</span>
+            </div>
+            <div class="doc-field">
+              <span class="doc-k">Tx Peak Power:</span>
+              <span class="doc-v">25.0 Watts (Solid State Active Array)</span>
+            </div>
+            <div class="doc-field">
+              <span class="doc-k">Processing Architecture:</span>
+              <span class="doc-v">Joint Time-Frequency (STFT) + Cadence (CVD)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Active Target Kinematic & Micro-Doppler Telemetry -->
+        <section class="doc-section">
+          <h3 class="doc-section-title">2. DETECTED TARGET TELEMETRY &amp; PHYSICAL MEASUREMENTS</h3>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Telemetry Parameter</th>
+                <th>Measured Value</th>
+                <th>Reference Threshold</th>
+                <th>Diagnostic Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Target ID &amp; Track Ref:</strong></td>
+                <td id="repTrackId">TRK-2026-0492</td>
+                <td>--</td>
+                <td>Active track locked on PPI scope</td>
+              </tr>
+              <tr>
+                <td><strong>Slant Range &amp; Bearing:</strong></td>
+                <td id="repRangeBearing">1,420 m @ 045&deg; Azimuth</td>
+                <td>Max Range: 2,500 m</td>
+                <td>Target in inner defensive surveillance ring</td>
+              </tr>
+              <tr>
+                <td><strong>Translational Velocity ($v_r$):</strong></td>
+                <td id="repSpeed">12.0 m/s (43.2 km/h)</td>
+                <td>5 - 30 m/s</td>
+                <td>Compatible with both commercial UAV and avian flight</td>
+              </tr>
+              <tr>
+                <td><strong>Conventional RCS (&sigma;):</strong></td>
+                <td id="repRcs">0.021 m&sup2; (-16.8 dBsm)</td>
+                <td>0.015 - 0.035 m&sup2;</td>
+                <td><strong class="text-alert">AMBIGUOUS: Drone &amp; Bird have identical RCS</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Cadence Peak ($f_c$):</strong></td>
+                <td id="repCadence">170.0 Hz</td>
+                <td>&gt; 50 Hz = Rotor | &lt; 15 Hz = Bird</td>
+                <td><strong class="text-critical" id="repCadenceInterp">CONFIRMED ROTARY BLADE CHOPPING RATE</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Micro-Doppler Bandwidth ($B_{mD}$):</strong></td>
+                <td id="repBw">&plusmn;1,480 Hz (2,960 Hz span)</td>
+                <td>&plusmn;1,000 to &plusmn;2,500 Hz</td>
+                <td>Rotor tip velocity $v_{tip} \approx 60.0\text{ m/s}$</td>
+              </tr>
+              <tr>
+                <td><strong>Sideband Spectral Symmetry:</strong></td>
+                <td id="repSymm">0.96 (High Symmetry)</td>
+                <td>&gt; 0.90 for rotor pairs</td>
+                <td>Counter-rotating aerodynamic blade balance</td>
+              </tr>
+              <tr>
+                <td><strong>Torso Energy Reflection Ratio:</strong></td>
+                <td id="repTorso">0.28 (Rotor Dominant)</td>
+                <td>&gt; 0.80 for birds</td>
+                <td>Significant RF reflection from carbon-fiber rotors</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Section 3: AI Inference & Discrimination Verdict -->
+        <section class="doc-section">
+          <h3 class="doc-section-title">3. AI ENSEMBLE CLASSIFICATION &amp; THREAT DIRECTIVE</h3>
+          <div class="doc-verdict-box" id="repVerdictBox">
+            <div class="verdict-header">
+              <span class="v-label">SYSTEM DETERMINATION:</span>
+              <span class="v-result" id="repVerdictResult">TARGET CONFIRMED AS DRONE [Quadcopter]</span>
+              <span class="v-conf" id="repVerdictConf">CONFIDENCE: 100.0%</span>
+            </div>
+            <div class="verdict-body">
+              <p id="repVerdictDesc">
+                Kinematic micro-Doppler feature decomposition isolates high-speed rotor chop frequencies ($170\text{ Hz}$) 
+                and wide Doppler tip velocity spread ($\pm 1,480\text{ Hz}$), conclusively ruling out biological avian flight. 
+                Target exhibits an active tactical UAV profile.
+              </p>
+            </div>
+            <div class="verdict-directive">
+              <span class="dir-tag">OPERATIONAL DIRECTIVE:</span>
+              <strong id="repVerdictDirective">ENGAGE COUNTER-UAS PROTOCOL 4A: AUTHORIZE DIRECTED RF ELECTRONIC JAMMING (2.4/5.8 GHz) &amp; GNSS SPOOFING.</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 4: Sign-off & Verification -->
+        <section class="doc-sign-section">
+          <div class="sign-block">
+            <div class="sign-line"></div>
+            <span class="sign-title">RADAR DSP SYSTEMS ENGINEER</span>
+            <span class="sign-name">Problem 1606 Principal Investigator</span>
+          </div>
+          <div class="sign-block">
+            <div class="sign-line"></div>
+            <span class="sign-title">CHIEF DEFENSE SCIENTIST</span>
+            <span class="sign-name">Bharat Electronics Limited (BEL)</span>
+          </div>
+          <div class="sign-block">
+            <div class="sign-line"></div>
+            <span class="sign-title">AIR DEFENSE WATCH COMMANDER</span>
+            <span class="sign-name">Sector Operations Center</span>
+          </div>
+        </section>
+
+      </article>
+
+    </div>
+
+  </main>
+
+  <!-- ======================================================= -->
+  <!-- FLOATING MODAL: PRESENTER SCRIPT & TEACHER Q&A CHEAT SHEET -->
+  <!-- ======================================================= -->
+  <aside class="guide-modal" id="guideModal" aria-hidden="true">
+    <div class="guide-modal-backdrop" id="guideModalBackdrop"></div>
+    <div class="guide-modal-content">
+      <div class="guide-modal-header">
+        <div class="guide-title-group">
+          <span class="guide-badge">PRESENTER'S ON-SCREEN TELEPROMPTER</span>
+          <h2 class="guide-modal-title">Live Presentation Script &amp; Teacher Q&amp;A Cheat Sheet</h2>
+        </div>
+        <button class="btn-close-modal" id="closeGuideModalBtn" aria-label="Close Guide">✕</button>
+      </div>
+
+      <div class="guide-modal-body">
+        
+        <!-- Quick Nav inside Guide -->
+        <div class="guide-toc">
+          <a href="#g-pitch" class="toc-pill">🎯 30s Elevator Pitch</a>
+          <a href="#g-jargon" class="toc-pill">🧠 Jargon Buster</a>
+          <a href="#g-5diff" class="toc-pill">⚖️ 5 Golden Differences</a>
+          <a href="#g-script" class="toc-pill">🖥️ Live Demo Script</a>
+          <a href="#g-qa" class="toc-pill">❓ Top 5 Tough Q&amp;A</a>
+        </div>
+
+        <!-- Part 1: Elevator Pitch -->
+        <section class="guide-section" id="g-pitch">
+          <h3 class="gs-title">🎯 PART 1: The 30-Second Elevator Pitch</h3>
+          <p class="gs-hint">Say this right at the start to impress your teacher:</p>
+          <blockquote class="pitch-quote">
+            "Good morning/afternoon, Mam. My project addresses <strong>Problem ID 1606</strong> given by <strong>Bharat Electronics Limited (BEL)</strong>, titled <strong>'Micro-Doppler Based Target Classification'</strong>.<br><br>
+            Today, small commercial drones pose a huge threat to national security and border defense. The big problem is that standard military radars <strong>cannot tell the difference between a small drone and a bird</strong> because both look identical in size and speed on radar screens.<br><br>
+            Our solution uses <strong>Micro-Doppler Radar Signatures</strong>—which analyzes the microscopic movement of rotating propeller blades versus flapping bird wings—to classify targets with <strong>over 98% accuracy</strong>. I have built a complete, interactive defense surveillance web application to demonstrate this entire pipeline in real time."
+          </blockquote>
+        </section>
+
+        <!-- Part 2: Jargon Buster -->
+        <section class="guide-section" id="g-jargon">
+          <h3 class="gs-title">🧠 PART 2: Plain-English "Jargon Buster"</h3>
+          <div class="jargon-table-wrap">
+            <table class="jargon-table">
+              <thead>
+                <tr>
+                  <th>Technical Term</th>
+                  <th>What It Sounds Like</th>
+                  <th>What It Actually Means in Simple English</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Radar</strong></td>
+                  <td><em>Radio Detection And Ranging</em></td>
+                  <td>An antenna sends out radio waves into the sky. When waves bounce back (echo), the radar calculates where the object is and how fast it's flying.</td>
+                </tr>
+                <tr>
+                  <td><strong>Doppler Effect</strong></td>
+                  <td><em>The Ambulance Effect</em></td>
+                  <td>You know how an ambulance siren sounds high-pitched approaching you, and drops low speeding away? Radars use that exact principle to measure object speed.</td>
+                </tr>
+                <tr>
+                  <td><strong>Micro-Doppler</strong> <em>(Core!)</em></td>
+                  <td><em>Body speed vs Part speed</em></td>
+                  <td>A runner moves at 10 km/h (Doppler), but arms/legs swing back and forth much faster (Micro-Doppler!). For a drone: body flies at 12 m/s, but blades spin at <strong>5,000 RPM</strong>. For a bird: wings flap <strong>4-5 times a second</strong>.</td>
+                </tr>
+                <tr>
+                  <td><strong>RCS (Radar Cross Section)</strong></td>
+                  <td><em>How big it looks to radio waves</em></td>
+                  <td>Measured in $m^2$. A fighter jet has $5\text{ m}^2$. A DJI drone has <strong>$0.02\text{ m}^2$</strong>. A pigeon has <strong>$0.02\text{ m}^2$</strong>. This is why normal radars get confused!</td>
+                </tr>
+                <tr>
+                  <td><strong>FMCW Radar</strong></td>
+                  <td><em>Continuous wave chirp</em></td>
+                  <td>Sends continuous smooth sweeping waves instead of pulses. Compact, cost-effective, and standard for counter-drone defense.</td>
+                </tr>
+                <tr>
+                  <td><strong>JTFA / STFT</strong></td>
+                  <td><em>Short-Time Fourier Transform</em></td>
+                  <td>Chops the raw signal into tiny time slices to create a colorful 2D image called a <strong>Spectrogram</strong>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Spectrogram</strong></td>
+                  <td><em>Colorful heatmap on screen</em></td>
+                  <td><strong>X-axis</strong> = Time (s), <strong>Y-axis</strong> = Frequency/Speed (Hz), <strong>Color</strong> = Echo strength (Yellow/Red = strong; Blue/Black = quiet).</td>
+                </tr>
+                <tr>
+                  <td><strong>Cadence (CVD)</strong></td>
+                  <td><em>Rhythm / Heartbeat</em></td>
+                  <td>How often movement repeats. Drone blades chop air <strong>100 - 250 times/sec</strong>. Bird wings flap <strong>2 - 8 times/sec</strong>.</td>
+                </tr>
+                <tr>
+                  <td><strong>PPI Scope</strong></td>
+                  <td><em>Round green radar screen</em></td>
+                  <td>Classic circular sweeping display used in military command centers.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Part 3: 5 Golden Differences -->
+        <section class="guide-section" id="g-5diff">
+          <h3 class="gs-title">⚖️ PART 3: The 5 Golden Differences: Drone vs Bird</h3>
+          <div class="guide-diff-box">
+            <ol class="guide-list">
+              <li><strong>Rhythm / Cadence:</strong> Drone chops at <strong>170 Hz</strong> (5,100 RPM &times; 2 blades / 60). Bird flaps at <strong>2 to 8 Hz</strong>.</li>
+              <li><strong>Tip Speed (Doppler Spread):</strong> Drone blade tips travel at 60 m/s ($\pm 1,500\text{ Hz}$). Bird wing tips move at only 3-5 m/s ($\pm 180\text{ Hz}$).</li>
+              <li><strong>Symmetry:</strong> Drone blades rotate symmetrically (+ and - Doppler equal). Bird downstroke is strong and upstroke is folded (asymmetric).</li>
+              <li><strong>Torso Ratio:</strong> Drones have dense reflective rotors. Birds have 85%+ reflection from the chest torso, with soft feathers reflecting little.</li>
+              <li><strong>Why RCS Fails:</strong> Both return $0.02\text{ m}^2$. Only micro-Doppler vibrations reveal the true identity.</li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- Part 4: Step-by-Step Live Demo Script -->
+        <section class="guide-section" id="g-script">
+          <h3 class="gs-title">🖥️ PART 4: Step-by-Step Live Demo Script</h3>
+          
+          <div class="demo-step-card">
+            <h4>Step 1: Top Header &amp; Presets</h4>
+            <p><strong>Point to Header:</strong> <em>"Mam, here you can see the system header branded for Bharat Electronics Limited Problem 1606 with live FMCW DSP and AI classifier online."</em></p>
+            <p><strong>Point to Presets:</strong> <em>"Across the top, we have 6 targets: 3 drones (Quadcopter, Hexacopter, Micro-UAV) and 3 birds (Pigeon, Eagle, Seagull)."</em></p>
+          </div>
+
+          <div class="demo-step-card">
+            <h4>Step 2: Demonstrate a Drone (Quadcopter)</h4>
+            <p>Click on <strong>Quadcopter</strong>.</p>
+            <p><strong>Spectrogram:</strong> <em>"Notice the sharp bright vertical 'Blade Flashes' extending to &plusmn;1,500 Hz every time the propeller sweeps perpendicular to the beam."</em></p>
+            <p><strong>Cadence (CVD):</strong> <em>"Notice the sharp spike at 170 Hz. That is 2 blades &times; 5100 RPM / 60. Impossible for any bird to flap at 170 Hz!"</em></p>
+            <p><strong>PPI Scope:</strong> <em>"Red blip tracked at 1,420m bearing 45 degrees."</em></p>
+            <p><strong>Audio:</strong> Click Play ▶ to hear the high-speed electric motor whining drone.</p>
+          </div>
+
+          <div class="demo-step-card">
+            <h4>Step 3: Demonstrate a Bird (Pigeon)</h4>
+            <p>Click on <strong>Pigeon / Dove</strong>.</p>
+            <p><strong>Spectrogram:</strong> <em>"High flashes disappear! We see a smooth undulating wave in a narrow band of &plusmn;180 Hz."</em></p>
+            <p><strong>Cadence:</strong> <em>"Peak drops from 170 Hz to 5.8 Hz, matching biological wing flapping."</em></p>
+            <p><strong>Classification:</strong> <em>"Instantly switches to TARGET: BIRD, Threat: SAFE, radar blip turns green."</em></p>
+            <p><strong>Audio:</strong> Click Play ▶ to hear rhythmic low-frequency whooshing wingbeats.</p>
+          </div>
+
+          <div class="demo-step-card">
+            <h4>Step 4: Show the "Why RCS Fails" Tab</h4>
+            <p>Click Tab 2. Explain how RCS is identical ($0.02\text{ m}^2$) leading to a 50% false alarm rate, while micro-Doppler gives &gt;98% accuracy and enables automated military countermeasures.</p>
+          </div>
+
+          <div class="demo-step-card">
+            <h4>Step 5: Show Data Ingestion &amp; Benchmarks</h4>
+            <p>Click Tab 3. Show drag-and-drop ingestion (.wav, .csv). Click <strong>Ingest &amp; Test</strong> on any benchmark file to show real-time 7-feature extraction and confusion matrix (98.6% accuracy, 0.997 AUC).</p>
+          </div>
+
+          <div class="demo-step-card">
+            <h4>Step 6: Show Printable Defense Report</h4>
+            <p>Click Tab 4. Show the official BEL intelligence report with radar specs, telemetry, and C-UAS directives. Click <strong>Print / Export PDF</strong>.</p>
+          </div>
+        </section>
+
+        <!-- Part 5: Top 5 Tough Questions -->
+        <section class="guide-section" id="g-qa">
+          <h3 class="gs-title">❓ PART 5: Top 5 Tough Questions &amp; Exact Answers</h3>
+          
+          <div class="qa-item">
+            <h5 class="qa-q">Q1: "What does 'I/Q signal' mean in radar?"</h5>
+            <p class="qa-a"><strong>Your Answer:</strong> <em>"Mam, I/Q stands for In-Phase and Quadrature. A radar echo has both amplitude (strength) and phase (timing). Splitting into two signals 90 degrees apart—I and Q—allows the radar to tell not just speed, but whether the target is moving <strong>toward</strong> or <strong>away</strong> from the radar."</em></p>
+          </div>
+
+          <div class="qa-item">
+            <h5 class="qa-q">Q2: "What radar frequency band did you use and why?"</h5>
+            <p class="qa-a"><strong>Your Answer:</strong> <em>"We modeled an <strong>X-Band FMCW radar operating at 10.0 GHz</strong> ($\lambda = 3\text{ cm}$). X-band is standard for tactical counter-drone systems because its short wavelength provides high Doppler sensitivity, detecting tiny millimeter-scale blade tips."</em></p>
+          </div>
+
+          <div class="qa-item">
+            <h5 class="qa-q">Q3: "What machine learning algorithm is running?"</h5>
+            <p class="qa-a"><strong>Your Answer:</strong> <em>"We implemented a <strong>Physics-Informed Ensemble Classifier</strong> using <strong>Random Forest</strong> with 100 decision trees trained on 7 radar features: Cadence Peak, Doppler Bandwidth, Upper/Lower Extents, Sideband Symmetry, Torso Ratio, and Spectral Crest Factor."</em></p>
+          </div>
+
+          <div class="qa-item">
+            <h5 class="qa-q">Q4: "What is the hardest case for this system to classify?"</h5>
+            <p class="qa-a"><strong>Your Answer:</strong> <em>"The hardest edge case is a bird diving at high speed or an ultra-small nano-drone hovering still. But even when gliding, a bird has zero blade chopping cadence, whereas drone rotors must always spin at thousands of RPM for lift."</em></p>
+          </div>
+
+          <div class="qa-item">
+            <h5 class="qa-q">Q5: "What technologies did you use to build the website?"</h5>
+            <p class="qa-a"><strong>Your Answer:</strong> <em>"The architecture utilizes <strong>HTML5 Canvas</strong> for 60 FPS real-time spectrogram and PPI scope rendering, <strong>Web Audio API</strong> for real-time acoustic Doppler sonification, and an embedded DSP and Physics-Informed Random Forest inference engine in modern JavaScript."</em></p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- SCRIPTS -->
+  <script src="radar_dsp.js"></script>
+  <script src="audio_synth.js"></script>
+  <script src="radar_screen.js"></script>
+  <script src="sample_datasets.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
